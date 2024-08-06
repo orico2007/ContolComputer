@@ -5,7 +5,7 @@ from pynput.mouse import Button, Controller as MouseController
 def start_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
-    host = '127.0.0.1'
+    host = '192.168.1.217'
     port = 5050
     
     keyboard = KeyboardController()
