@@ -75,11 +75,15 @@ def startClient():
 
             if data:
                 image = pygame.image.load(io.BytesIO(data))
-                
-                # Check image dimensions and adjust the screen size if necessary
+
+                # Get image dimensions
                 img_width, img_height = image.get_size()
+                print(f"Image dimensions: {img_width}x{img_height}")  # Debugging line
+
+                # Adjust the screen size if needed
                 if img_width > screen_width or img_height > screen_height:
                     screen = pygame.display.set_mode((img_width, img_height), pygame.FULLSCREEN)
+                    print(f"Resized screen to: {img_width}x{img_height}")  # Debugging line
 
                 screen.blit(image, (0, 0))
                 pygame.display.flip()
