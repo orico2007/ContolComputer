@@ -47,6 +47,7 @@ def start_client():
         action = "press" if pressed else "release"
         button_str = 'left' if button == Button.left else 'right'
         message = f"{action}|{x},{y}|{button_str}\n"
+        print(f"Sending: {message.strip()}")  # Debugging line
         client_socket.send(message.encode())
 
     def on_scroll(x, y, dx, dy):

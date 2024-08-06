@@ -31,6 +31,7 @@ def start_server():
 
     def process_mouse(action, x, y, button=None, dx=0, dy=0):
         try:
+            print(f"Processing mouse: {action} at ({x}, {y}) with {button if button else ''}")  # Debugging line
             if action == "move":
                 mouse.position = (x, y)
             elif action == "press":
@@ -55,24 +56,26 @@ def start_server():
             print(f"Received data: {message}")  # Debugging line
 
             parts = message.split('|')
-            if len(parts) < 2:
+            if len(parts) < 3:
                 print(f"Invalid data format: {message}")
                 continue
 
             action = parts[0]
 
             if action in ["press", "release"]:
-                key = parts[1]
-                process_key(action, key)
-            elif action in ["move", "click", "scroll"]:
+                if parts[2] in ['left', 'right']:  # Handling mouse click actions
+                    x, y = map(int, parts[1].split(','))
+                    button = Button.left if parts[2] == 'left' else Button.right
+                    process_mouse(action, x, y, button=button)
+                else:
+                    key = parts[1]
+                    process_key(action, key)
+            elif action in ["move", "scroll"]:
                 try:
                     x, y = map(int, parts[1].split(','))
                     if action == "move":
                         dx, dy = map(int, parts[2].split(','))
                         process_mouse(action, x, y, dx=dx, dy=dy)
-                    elif action == "click":
-                        button = Button.left if parts[2] == 'left' else Button.right
-                        process_mouse(action, x, y, button=button)
                     elif action == "scroll":
                         dx, dy = map(int, parts[2].split(','))
                         process_mouse(action, x, y, dx=dx, dy=dy)
