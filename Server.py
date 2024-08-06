@@ -8,7 +8,7 @@ import io
 
 def startServer():
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = '192.168.1.217'
+    host = '84.229.209.209'
     port = 5050
 
     keyboard = KeyboardController()
