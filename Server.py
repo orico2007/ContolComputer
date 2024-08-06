@@ -70,7 +70,7 @@ def startServer():
             try:
                 screenshot = ImageGrab.grab()
                 buffer = io.BytesIO()
-                screenshot.save(buffer, format='PNG')  # Use PNG for lossless quality
+                screenshot.save(buffer, format='jpeg')  # Use PNG for lossless quality
                 data = buffer.getvalue()
 
                 # Send the size of the image first

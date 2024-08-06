@@ -79,7 +79,6 @@ def startClient():
                 if image is not None:
                     # Get the dimensions of the image
                     img_height, img_width = image.shape[:2]
-                    print(f"Image dimensions: {img_width}x{img_height}")  # Debugging line
 
                     # Calculate the scale factor to fit the image to full screen
                     screen_width = cv2.getWindowImageRect('Screen Viewer')[2]
