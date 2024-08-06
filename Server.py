@@ -21,6 +21,7 @@ def start_server():
 
     def process_key(action, key):
         try:
+            print(f"Processing key: {action} {key}")  # Debugging line
             if action == "press":
                 keyboard.press(key)
             elif action == "release":
@@ -51,10 +52,10 @@ def start_server():
         while '\n' in buffer:
             message, buffer = buffer.split('\n', 1)
             message = message.strip()
-            print(f"Received data: {message}")  # Debug print
+            print(f"Received data: {message}")  # Debugging line
 
             parts = message.split('|')
-            if len(parts) < 3:
+            if len(parts) < 2:
                 print(f"Invalid data format: {message}")
                 continue
 

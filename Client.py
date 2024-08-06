@@ -17,6 +17,7 @@ def start_client():
         except AttributeError:
             key_str = str(key)
         message = f"press|{key_str}\n"
+        print(f"Sending: {message.strip()}")  # Debugging line
         client_socket.send(message.encode())
 
     def on_release(key):
@@ -25,6 +26,7 @@ def start_client():
         except AttributeError:
             key_str = str(key)
         message = f"release|{key_str}\n"
+        print(f"Sending: {message.strip()}")  # Debugging line
         client_socket.send(message.encode())
         if key == Key.esc:
             return False  # Stop the listener
