@@ -14,7 +14,7 @@ def startClient():
 
     # Initialize OpenCV window in full screen mode
     cv2.namedWindow('Screen Viewer', cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty('Screen Viewer',cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+    cv2.setWindowProperty('Screen Viewer', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     def on_press(key):
         try:
@@ -89,7 +89,7 @@ def startClient():
                     new_height = int(img_height * scale_factor)
 
                     # Resize the image
-                    resized_image = cv2.resize(image, (new_width, new_height))
+                    resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
 
                     # Display the resized image
                     cv2.imshow('Screen Viewer', resized_image)

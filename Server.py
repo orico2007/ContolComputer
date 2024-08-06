@@ -28,7 +28,6 @@ def startServer():
     def processKey(action, key):
         nonlocal capsLockActive
         try:
-            print(f"Processing key: {action} {key}")  # Debugging line
             if key.startswith('Key.'):
                 key = getattr(Key, key.split('.')[1])
             elif len(key) > 1:  # For special keys that are not single characters
@@ -55,7 +54,6 @@ def startServer():
 
     def processMouse(action, x, y, button=None, dx=0, dy=0):
         try:
-            print(f"Processing mouse: {action} at ({x}, {y}) with {button if button else ''}")  # Debugging line
             if action == "move":
                 mouse.position = (x, y)
             elif action == "press":
@@ -72,7 +70,7 @@ def startServer():
             try:
                 screenshot = ImageGrab.grab()
                 buffer = io.BytesIO()
-                screenshot.save(buffer, format='PNG')
+                screenshot.save(buffer, format='PNG')  # Use PNG for lossless quality
                 data = buffer.getvalue()
 
                 # Send the size of the image first
@@ -81,7 +79,7 @@ def startServer():
 
                 # Send the image data
                 clientSocket.sendall(data)
-                time.sleep(0.1)
+                time.sleep(0.01)
             except Exception as e:
                 print(f"Error capturing or sending screen: {e}")
                 break
@@ -99,7 +97,6 @@ def startServer():
         while '\n' in buffer:
             message, buffer = buffer.split('\n', 1)
             message = message.strip()
-            print(f"Received data: {message}")  # Debugging line
 
             parts = message.split('|')
             if len(parts) < 2:
@@ -109,7 +106,7 @@ def startServer():
             action = parts[0]
 
             if action in ["press", "release"]:
-                if len(parts) == 3 and parts[2] in ['left', 'right']:  # Handling mouse click actions
+                if len(parts) == 3 and parts[2] in ['left', 'right']:
                     x, y = map(int, parts[1].split(','))
                     button = Button.left if parts[2] == 'left' else Button.right
                     processMouse(action, x, y, button=button)
