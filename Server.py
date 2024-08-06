@@ -27,6 +27,8 @@ def start_server():
             print(f"Processing key: {action} {key}")  # Debugging line
             if key.startswith('Key.'):
                 key = getattr(Key, key.split('.')[1])
+            elif len(key) > 1:  # For special keys that are not single characters
+                key = getattr(Key, key)
             else:
                 key = KeyCode.from_char(key)
             
