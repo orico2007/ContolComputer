@@ -13,11 +13,9 @@ def startClient():
 
     pygame.init()
 
-    # Get the screen dimensions
-    info = pygame.display.Info()
-    screen_width, screen_height = info.current_w, info.current_h
-
-    screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
+    # Create a small initial window to avoid issues
+    screen_width, screen_height = 800, 600
+    screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption('Screen Viewer')
 
     def on_press(key):
@@ -77,6 +75,12 @@ def startClient():
 
             if data:
                 image = pygame.image.load(io.BytesIO(data))
+                
+                # Check image dimensions and adjust the screen size if necessary
+                img_width, img_height = image.get_size()
+                if img_width > screen_width or img_height > screen_height:
+                    screen = pygame.display.set_mode((img_width, img_height), pygame.FULLSCREEN)
+
                 screen.blit(image, (0, 0))
                 pygame.display.flip()
 
