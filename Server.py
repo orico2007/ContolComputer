@@ -6,7 +6,7 @@ def start_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
     host = '192.168.1.217'
-    port = 5050
+    port = 12345
     
     keyboard = KeyboardController()
     mouse = MouseController()

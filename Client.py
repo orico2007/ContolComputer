@@ -4,7 +4,7 @@ from pynput import mouse, keyboard
 def start_client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = '192.168.1.217'
-    port = 5050
+    port = 12345
 
     try:
         client_socket.connect((host, port))
