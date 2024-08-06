@@ -4,14 +4,12 @@ import time
 from pynput.keyboard import Controller as KeyboardController, Key, KeyCode
 from pynput.mouse import Button, Controller as MouseController
 from PIL import ImageGrab
+import io
 
 def startServer():
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = '192.168.1.217'
     port = 5050
-    
-    global filepath
-    filepath = 'screen.png'
 
     keyboard = KeyboardController()
     mouse = MouseController()
@@ -72,12 +70,21 @@ def startServer():
     def processScreen():
         while True:
             try:
-                screenshot = ImageGrab.grab()  # Capture the screenshot
-                screenshot.save(filepath, 'png')  # Save the screenshot to the specified file path
-                print("Screenshot saved successfully.")  # Debugging line
-                time.sleep(0.1)  # Capture every 100 milliseconds (adjust as needed)
+                screenshot = ImageGrab.grab()
+                buffer = io.BytesIO()
+                screenshot.save(buffer, format='PNG')
+                data = buffer.getvalue()
+
+                # Send the size of the image first
+                size_info = len(data).to_bytes(4, 'big')
+                clientSocket.send(size_info)
+
+                # Send the image data
+                clientSocket.sendall(data)
+                time.sleep(0.1)
             except Exception as e:
-                print(f"Error capturing screen: {e}")
+                print(f"Error capturing or sending screen: {e}")
+                break
 
     # Start the screenshot capturing in a separate thread
     threading.Thread(target=processScreen, daemon=True).start()

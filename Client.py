@@ -1,55 +1,51 @@
+import pygame
 import socket
-from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
-from pynput.mouse import Listener as MouseListener, Button
+import io
 
 def startClient():
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = '192.168.1.217'
+    host = '192.168.1.217'  # Change this to your server IP address
     port = 5050
 
     clientSocket.connect((host, port))
 
-    def on_press(key):
+    pygame.init()
+    screen = pygame.display.set_mode((800, 600))
+    pygame.display.set_caption('Screen Viewer')
+
+    while True:
         try:
-            key_str = key.char
-        except AttributeError:
-            key_str = str(key)
-        message = f"press|{key_str}\n"
-        clientSocket.send(message.encode())
+            # Receive the size of the image
+            size_info = clientSocket.recv(4)
+            if not size_info:
+                break
+            size = int.from_bytes(size_info, 'big')
 
-    def on_release(key):
-        try:
-            key_str = key.char
-        except AttributeError:
-            key_str = str(key)
-        message = f"release|{key_str}\n"
-        clientSocket.send(message.encode())
-        if key == Key.esc:
-            return False  # Stop the listener
+            # Receive the image data
+            data = b''
+            while len(data) < size:
+                packet = clientSocket.recv(size - len(data))
+                if not packet:
+                    break
+                data += packet
 
-    # Start the keyboard listener in a separate thread
-    keyboard_listener = KeyboardListener(on_press=on_press, on_release=on_release)
-    keyboard_listener.start()
+            if data:
+                image = pygame.image.load(io.BytesIO(data))
+                screen.blit(image, (0, 0))
+                pygame.display.flip()
 
-    def on_move(x, y):
-        message = f"move|{x},{y}|0,0\n"
-        clientSocket.send(message.encode())
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    clientSocket.close()
+                    pygame.quit()
+                    return
 
-    def on_click(x, y, button, pressed):
-        action = "press" if pressed else "release"
-        button_str = 'left' if button == Button.left else 'right'
-        message = f"{action}|{x},{y}|{button_str}\n"
-        clientSocket.send(message.encode())
-
-    def on_scroll(x, y, dx, dy):
-        message = f"scroll|{x},{y}|{dx},{dy}\n"
-        clientSocket.send(message.encode())
-
-    # Start the mouse listener
-    with MouseListener(on_move=on_move, on_click=on_click, on_scroll=on_scroll) as listener:
-        listener.join()
+        except Exception as e:
+            print(f"Error receiving or displaying image: {e}")
+            break
 
     clientSocket.close()
+    pygame.quit()
 
 if __name__ == "__main__":
     startClient()
