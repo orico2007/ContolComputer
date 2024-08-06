@@ -22,7 +22,7 @@ def start_server():
     caps_lock_active = False  # Initialize caps_lock_active
 
     def process_key(action, key):
-        nonlocal caps_lock_active  # Declare caps_lock_active as nonlocal
+        nonlocal caps_lock_active
         try:
             print(f"Processing key: {action} {key}")  # Debugging line
             if key.startswith('Key.'):
@@ -32,7 +32,6 @@ def start_server():
             else:
                 key = KeyCode.from_char(key)
             
-            # Track modifier keys
             if action == "press":
                 if key == Key.caps_lock:
                     caps_lock_active = not caps_lock_active
