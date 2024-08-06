@@ -13,7 +13,7 @@ def startClient():
 
     pygame.init()
 
-    # Create a small initial window to avoid issues
+    # Initialize screen with a default size (will be updated)
     screen_width, screen_height = 800, 600
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption('Screen Viewer')
@@ -80,10 +80,9 @@ def startClient():
                 img_width, img_height = image.get_size()
                 print(f"Image dimensions: {img_width}x{img_height}")  # Debugging line
 
-                # Adjust the screen size if needed
-                if img_width > screen_width or img_height > screen_height:
-                    screen = pygame.display.set_mode((img_width, img_height), pygame.FULLSCREEN)
-                    print(f"Resized screen to: {img_width}x{img_height}")  # Debugging line
+                # Adjust the screen size to match the image size
+                screen = pygame.display.set_mode((img_width, img_height))
+                pygame.display.set_caption('Screen Viewer - Size: {}x{}'.format(img_width, img_height))
 
                 screen.blit(image, (0, 0))
                 pygame.display.flip()
