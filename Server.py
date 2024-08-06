@@ -1,5 +1,5 @@
 import socket
-from pynput.keyboard import Controller as KeyboardController, Key
+from pynput.keyboard import Controller as KeyboardController, Key, KeyCode
 from pynput.mouse import Button, Controller as MouseController
 
 def start_server():
@@ -18,17 +18,33 @@ def start_server():
     print("Got a connection from", addr)
 
     buffer = ""
+    pressed_keys = set()
+    caps_lock_active = False
 
     def process_key(action, key):
+        global caps_lock_active
         try:
             print(f"Processing key: {action} {key}")  # Debugging line
-            # Handle special keys
             if key.startswith('Key.'):
                 key = getattr(Key, key.split('.')[1])
+            else:
+                key = KeyCode.from_char(key)
+            
+            # Track modifier keys
             if action == "press":
+                if key == Key.caps_lock:
+                    caps_lock_active = not caps_lock_active
+                    print(f"Caps Lock is now {'on' if caps_lock_active else 'off'}")
                 keyboard.press(key)
+                pressed_keys.add(key)
             elif action == "release":
                 keyboard.release(key)
+                if key in pressed_keys:
+                    pressed_keys.remove(key)
+
+            # Debugging line to show all pressed keys
+            print(f"Currently pressed keys: {pressed_keys}")
+
         except Exception as e:
             print(f"Error processing key: {key}, {e}")
 
