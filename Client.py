@@ -35,10 +35,10 @@ def start_client():
 
     def on_click(x, y, button, pressed):
         action = "press" if pressed else "release"
-        client_socket.send(f"{action} {(x, y, button)}".encode())
+        client_socket.send(f"{action} {(button,)}".encode())
 
     def on_scroll(x, y, dx, dy):
-        client_socket.send(f"scroll {(x, y, dx, dy)}".encode())
+        client_socket.send(f"scroll {(dx, dy)}".encode())
 
     # Start the mouse listener in the main thread
     with MouseListener(on_move=on_move, on_click=on_click, on_scroll=on_scroll) as listener:

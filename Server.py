@@ -27,15 +27,19 @@ def start_server():
         except ValueError as e:
             print(f"Error processing key: {key}, {e}")
 
-    def process_mouse(action, x, y, button=None, dx=0, dy=0):
+    def process_mouse(action, *args):
         try:
             if action == "move":
+                dx, dy = args
                 mouse.move(dx, dy)
             elif action == "press":
+                button = args[0]
                 mouse.press(button)
             elif action == "release":
+                button = args[0]
                 mouse.release(button)
             elif action == "scroll":
+                dx, dy = args
                 mouse.scroll(dx, dy)
         except ValueError as e:
             print(f"Error processing mouse action: {action}, {e}")
@@ -52,15 +56,8 @@ def start_server():
             key = action_data[1]
             process_key(action, key)
         elif action in ["move", "click", "scroll"]:
-            x, y, *rest = eval(action_data[1])
-            if action == "move":
-                process_mouse(action, x, y, dx=x, dy=y)
-            elif action == "click":
-                button = Button.left if rest[0] == 'Button.left' else Button.right
-                process_mouse("press" if rest[1] else "release", x, y, button=button)
-            elif action == "scroll":
-                dx, dy = rest
-                process_mouse(action, x, y, dx=dx, dy=dy)
+            args = eval(action_data[1])
+            process_mouse(action, *args)
 
     client_socket.close()
 
