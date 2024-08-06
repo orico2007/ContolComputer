@@ -12,12 +12,8 @@ def startClient():
 
     clientSocket.connect((host, port))
 
-    # Get the screen dimensions of the client
-    screen_width = 1280  # Example width, replace with actual screen width if needed
-    screen_height = 720  # Example height, replace with actual screen height if needed
-
-    cv2.namedWindow('Screen Viewer', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('Screen Viewer', screen_width, screen_height)
+    # Initialize OpenCV window in full screen mode
+    cv2.namedWindow('Screen Viewer', cv2.WINDOW_FULLSCREEN)
 
     def on_press(key):
         try:
@@ -84,7 +80,9 @@ def startClient():
                     img_height, img_width = image.shape[:2]
                     print(f"Image dimensions: {img_width}x{img_height}")  # Debugging line
 
-                    # Calculate the scale factor to fit within the client's screen
+                    # Calculate the scale factor to fit the image to full screen
+                    screen_width = cv2.getWindowImageRect('Screen Viewer')[2]
+                    screen_height = cv2.getWindowImageRect('Screen Viewer')[3]
                     scale_factor = min(screen_width / img_width, screen_height / img_height)
                     new_width = int(img_width * scale_factor)
                     new_height = int(img_height * scale_factor)
@@ -92,7 +90,7 @@ def startClient():
                     # Resize the image
                     resized_image = cv2.resize(image, (new_width, new_height))
 
-                    # Display the image
+                    # Display the resized image
                     cv2.imshow('Screen Viewer', resized_image)
 
                     # Handle window events
