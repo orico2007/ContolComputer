@@ -61,7 +61,7 @@ def startClient():
 
     while True:
         try:
-            # Receive the size of the image
+            # Receive the size of the image (4 bytes, big-endian)
             size_info = clientSocket.recv(4)
             if not size_info:
                 break
@@ -76,9 +76,13 @@ def startClient():
                 data += packet
 
             if data:
-                # Load and resize the image to fit the screen
+                # Load the image from bytes
                 image = pygame.image.load(io.BytesIO(data))
+
+                # Resize the image to fit the screen
                 image = pygame.transform.scale(image, (screen_width, screen_height))
+
+                # Display the image
                 screen.blit(image, (0, 0))
                 pygame.display.flip()
 
