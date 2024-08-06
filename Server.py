@@ -1,5 +1,5 @@
 import socket
-from pynput.keyboard import Controller as KeyboardController
+from pynput.keyboard import Controller as KeyboardController, Key
 from pynput.mouse import Button, Controller as MouseController
 
 def start_server():
@@ -22,6 +22,9 @@ def start_server():
     def process_key(action, key):
         try:
             print(f"Processing key: {action} {key}")  # Debugging line
+            # Handle special keys
+            if key.startswith('Key.'):
+                key = getattr(Key, key.split('.')[1])
             if action == "press":
                 keyboard.press(key)
             elif action == "release":
@@ -56,14 +59,14 @@ def start_server():
             print(f"Received data: {message}")  # Debugging line
 
             parts = message.split('|')
-            if len(parts) < 3:
+            if len(parts) < 2:
                 print(f"Invalid data format: {message}")
                 continue
 
             action = parts[0]
 
             if action in ["press", "release"]:
-                if parts[2] in ['left', 'right']:  # Handling mouse click actions
+                if len(parts) == 3 and parts[2] in ['left', 'right']:  # Handling mouse click actions
                     x, y = map(int, parts[1].split(','))
                     button = Button.left if parts[2] == 'left' else Button.right
                     process_mouse(action, x, y, button=button)
