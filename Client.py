@@ -13,7 +13,8 @@ def startClient():
     clientSocket.connect((host, port))
 
     # Initialize OpenCV window in full screen mode
-    cv2.namedWindow('Screen Viewer', cv2.WINDOW_FULLSCREEN)
+    cv2.namedWindow('Screen Viewer', cv2.WND_PROP_FULLSCREEN)
+    cv2.setWindowProperty('Screen Viewer',cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
     def on_press(key):
         try:
