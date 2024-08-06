@@ -10,7 +10,7 @@ def start_server():
     keyboard = KeyboardController()
     mouse = MouseController()
 
-    server_socket.bind((host, port))
+    server_socket.bind((host, port    ))
     server_socket.listen(1)
     print("Server is listening on port", port)
 
