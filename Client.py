@@ -13,8 +13,11 @@ def startClient():
 
     pygame.init()
 
-    # Initialize screen with a default size (will be updated)
-    screen_width, screen_height = 800, 600
+    # Get the screen dimensions of the client
+    info = pygame.display.Info()
+    screen_width, screen_height = info.current_w, info.current_h
+
+    # Initialize screen with a default size
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption('Screen Viewer')
 
@@ -80,11 +83,17 @@ def startClient():
                 img_width, img_height = image.get_size()
                 print(f"Image dimensions: {img_width}x{img_height}")  # Debugging line
 
-                # Adjust the screen size to match the image size
-                screen = pygame.display.set_mode((img_width, img_height))
-                pygame.display.set_caption('Screen Viewer - Size: {}x{}'.format(img_width, img_height))
+                # Calculate the new size to fit within the client's screen
+                scale_factor = min(screen_width / img_width, screen_height / img_height)
+                new_width = int(img_width * scale_factor)
+                new_height = int(img_height * scale_factor)
+                scaled_image = pygame.transform.scale(image, (new_width, new_height))
 
-                screen.blit(image, (0, 0))
+                # Adjust the screen size to match the scaled image size
+                screen = pygame.display.set_mode((new_width, new_height))
+                pygame.display.set_caption(f'Screen Viewer - Size: {new_width}x{new_height}')
+
+                screen.blit(scaled_image, (0, 0))
                 pygame.display.flip()
 
             for event in pygame.event.get():
