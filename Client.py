@@ -1,5 +1,6 @@
 import socket
-import pygame
+import cv2
+import numpy as np
 import io
 from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
 from pynput.mouse import Listener as MouseListener, Button
@@ -11,15 +12,12 @@ def startClient():
 
     clientSocket.connect((host, port))
 
-    pygame.init()
-
     # Get the screen dimensions of the client
-    info = pygame.display.Info()
-    screen_width, screen_height = info.current_w, info.current_h
+    screen_width = 1280  # Example width, replace with actual screen width if needed
+    screen_height = 720  # Example height, replace with actual screen height if needed
 
-    # Initialize screen with a default size
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption('Screen Viewer')
+    cv2.namedWindow('Screen Viewer', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Screen Viewer', screen_width, screen_height)
 
     def on_press(key):
         try:
@@ -77,37 +75,37 @@ def startClient():
                 data += packet
 
             if data:
-                image = pygame.image.load(io.BytesIO(data))
+                # Convert the byte data to a numpy array and then decode it
+                image_data = np.frombuffer(data, dtype=np.uint8)
+                image = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
 
-                # Get image dimensions
-                img_width, img_height = image.get_size()
-                print(f"Image dimensions: {img_width}x{img_height}")  # Debugging line
+                if image is not None:
+                    # Get the dimensions of the image
+                    img_height, img_width = image.shape[:2]
+                    print(f"Image dimensions: {img_width}x{img_height}")  # Debugging line
 
-                # Calculate the new size to fit within the client's screen
-                scale_factor = min(screen_width / img_width, screen_height / img_height)
-                new_width = int(img_width * scale_factor)
-                new_height = int(img_height * scale_factor)
-                scaled_image = pygame.transform.scale(image, (new_width, new_height))
+                    # Calculate the scale factor to fit within the client's screen
+                    scale_factor = min(screen_width / img_width, screen_height / img_height)
+                    new_width = int(img_width * scale_factor)
+                    new_height = int(img_height * scale_factor)
 
-                # Adjust the screen size to match the scaled image size
-                screen = pygame.display.set_mode((new_width, new_height))
-                pygame.display.set_caption(f'Screen Viewer - Size: {new_width}x{new_height}')
+                    # Resize the image
+                    resized_image = cv2.resize(image, (new_width, new_height))
 
-                screen.blit(scaled_image, (0, 0))
-                pygame.display.flip()
+                    # Display the image
+                    cv2.imshow('Screen Viewer', resized_image)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    clientSocket.close()
-                    pygame.quit()
-                    return
+                    # Handle window events
+                    key = cv2.waitKey(1)
+                    if key == 27:  # ESC key
+                        break
 
         except Exception as e:
             print(f"Error receiving or displaying image: {e}")
             break
 
     clientSocket.close()
-    pygame.quit()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     startClient()
