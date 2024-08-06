@@ -19,10 +19,10 @@ def start_server():
 
     buffer = ""
     pressed_keys = set()
-    caps_lock_active = False
+    caps_lock_active = False  # Initialize caps_lock_active
 
     def process_key(action, key):
-        global caps_lock_active
+        nonlocal caps_lock_active  # Declare caps_lock_active as nonlocal
         try:
             print(f"Processing key: {action} {key}")  # Debugging line
             if key.startswith('Key.'):
