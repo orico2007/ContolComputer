@@ -28,7 +28,6 @@ def startServer():
     def processKey(action, key):
         nonlocal capsLockActive
         try:
-            print(f"Processing key: {action} {key}")  # Debugging line
             if key.startswith('Key.'):
                 key = getattr(Key, key.split('.')[1])
             elif len(key) > 1:  # For special keys that are not single characters
@@ -39,7 +38,6 @@ def startServer():
             if action == "press":
                 if key == Key.caps_lock:
                     capsLockActive = not capsLockActive
-                    print(f"Caps Lock is now {'on' if capsLockActive else 'off'}")
                 keyboard.press(key)
                 pressedKeys.add(key)
             elif action == "release":
@@ -47,15 +45,11 @@ def startServer():
                 if key in pressedKeys:
                     pressedKeys.remove(key)
 
-            # Debugging line to show all pressed keys
-            print(f"Currently pressed keys: {pressedKeys}")
-
         except Exception as e:
             print(f"Error processing key: {key}, {e}")
 
     def processMouse(action, x, y, button=None, dx=0, dy=0):
         try:
-            print(f"Processing mouse: {action} at ({x}, {y}) with {button if button else ''}")  # Debugging line
             if action == "move":
                 mouse.position = (x, y)
             elif action == "press":
@@ -99,7 +93,6 @@ def startServer():
         while '\n' in buffer:
             message, buffer = buffer.split('\n', 1)
             message = message.strip()
-            print(f"Received data: {message}")  # Debugging line
 
             parts = message.split('|')
             if len(parts) < 2:

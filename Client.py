@@ -79,11 +79,28 @@ def startClient():
                 # Load the image from bytes
                 image = pygame.image.load(io.BytesIO(data))
 
-                # Resize the image to fit the screen
-                image = pygame.transform.scale(image, (screen_width, screen_height))
+                # Get original image dimensions
+                image_width, image_height = image.get_size()
+
+                # Calculate scaling factors
+                scale_x = screen_width / image_width
+                scale_y = screen_height / image_height
+                scale = min(scale_x, scale_y)
+
+                # Calculate new dimensions
+                new_width = int(image_width * scale)
+                new_height = int(image_height * scale)
+
+                # Resize the image while preserving aspect ratio
+                image = pygame.transform.scale(image, (new_width, new_height))
+
+                # Calculate position to center the image
+                position_x = (screen_width - new_width) // 2
+                position_y = (screen_height - new_height) // 2
 
                 # Display the image
-                screen.blit(image, (0, 0))
+                screen.fill((0, 0, 0))  # Clear the screen with black
+                screen.blit(image, (position_x, position_y))
                 pygame.display.flip()
 
             for event in pygame.event.get():
