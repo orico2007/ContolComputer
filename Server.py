@@ -1,28 +1,34 @@
 import socket
+import threading
+import time
 from pynput.keyboard import Controller as KeyboardController, Key, KeyCode
 from pynput.mouse import Button, Controller as MouseController
+from PIL import ImageGrab
 
-def start_server():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def startServer():
+    serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = '192.168.1.217'
     port = 5050
+    
+    global filepath
+    filepath = 'screen.png'
 
     keyboard = KeyboardController()
     mouse = MouseController()
 
-    server_socket.bind((host, port))
-    server_socket.listen(1)
+    serverSocket.bind((host, port))
+    serverSocket.listen(1)
     print("Server is listening on port", port)
 
-    client_socket, addr = server_socket.accept()
+    clientSocket, addr = serverSocket.accept()
     print("Got a connection from", addr)
 
     buffer = ""
-    pressed_keys = set()
-    caps_lock_active = False  # Initialize caps_lock_active
+    pressedKeys = set()
+    capsLockActive = False  # Initialize caps_lock_active
 
-    def process_key(action, key):
-        nonlocal caps_lock_active
+    def processKey(action, key):
+        nonlocal capsLockActive
         try:
             print(f"Processing key: {action} {key}")  # Debugging line
             if key.startswith('Key.'):
@@ -34,22 +40,22 @@ def start_server():
             
             if action == "press":
                 if key == Key.caps_lock:
-                    caps_lock_active = not caps_lock_active
-                    print(f"Caps Lock is now {'on' if caps_lock_active else 'off'}")
+                    capsLockActive = not capsLockActive
+                    print(f"Caps Lock is now {'on' if capsLockActive else 'off'}")
                 keyboard.press(key)
-                pressed_keys.add(key)
+                pressedKeys.add(key)
             elif action == "release":
                 keyboard.release(key)
-                if key in pressed_keys:
-                    pressed_keys.remove(key)
+                if key in pressedKeys:
+                    pressedKeys.remove(key)
 
             # Debugging line to show all pressed keys
-            print(f"Currently pressed keys: {pressed_keys}")
+            print(f"Currently pressed keys: {pressedKeys}")
 
         except Exception as e:
             print(f"Error processing key: {key}, {e}")
 
-    def process_mouse(action, x, y, button=None, dx=0, dy=0):
+    def processMouse(action, x, y, button=None, dx=0, dy=0):
         try:
             print(f"Processing mouse: {action} at ({x}, {y}) with {button if button else ''}")  # Debugging line
             if action == "move":
@@ -63,8 +69,21 @@ def start_server():
         except Exception as e:
             print(f"Error processing mouse action: {action}, {e}")
 
+    def processScreen():
+        while True:
+            try:
+                screenshot = ImageGrab.grab()  # Capture the screenshot
+                screenshot.save(filepath, 'png')  # Save the screenshot to the specified file path
+                print("Screenshot saved successfully.")  # Debugging line
+                time.sleep(0.1)  # Capture every 100 milliseconds (adjust as needed)
+            except Exception as e:
+                print(f"Error capturing screen: {e}")
+
+    # Start the screenshot capturing in a separate thread
+    threading.Thread(target=processScreen, daemon=True).start()
+
     while True:
-        data = client_socket.recv(1024).decode()
+        data = clientSocket.recv(1024).decode()
         if not data:
             break
         
@@ -86,23 +105,23 @@ def start_server():
                 if len(parts) == 3 and parts[2] in ['left', 'right']:  # Handling mouse click actions
                     x, y = map(int, parts[1].split(','))
                     button = Button.left if parts[2] == 'left' else Button.right
-                    process_mouse(action, x, y, button=button)
+                    processMouse(action, x, y, button=button)
                 else:
                     key = parts[1]
-                    process_key(action, key)
+                    processKey(action, key)
             elif action in ["move", "scroll"]:
                 try:
                     x, y = map(int, parts[1].split(','))
                     if action == "move":
                         dx, dy = map(int, parts[2].split(','))
-                        process_mouse(action, x, y, dx=dx, dy=dy)
+                        processMouse(action, x, y, dx=dx, dy=dy)
                     elif action == "scroll":
                         dx, dy = map(int, parts[2].split(','))
-                        process_mouse(action, x, y, dx=dx, dy=dy)
+                        processMouse(action, x, y, dx=dx, dy=dy)
                 except ValueError as e:
                     print(f"Error parsing mouse data: {e}")
 
-    client_socket.close()
+    clientSocket.close()
 
 if __name__ == "__main__":
-    start_server()
+    startServer()

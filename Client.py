@@ -2,12 +2,12 @@ import socket
 from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
 from pynput.mouse import Listener as MouseListener, Button
 
-def start_client():
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def startClient():
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = '192.168.1.217'
     port = 5050
 
-    client_socket.connect((host, port))
+    clientSocket.connect((host, port))
 
     def on_press(key):
         try:
@@ -15,7 +15,7 @@ def start_client():
         except AttributeError:
             key_str = str(key)
         message = f"press|{key_str}\n"
-        client_socket.send(message.encode())
+        clientSocket.send(message.encode())
 
     def on_release(key):
         try:
@@ -23,7 +23,7 @@ def start_client():
         except AttributeError:
             key_str = str(key)
         message = f"release|{key_str}\n"
-        client_socket.send(message.encode())
+        clientSocket.send(message.encode())
         if key == Key.esc:
             return False  # Stop the listener
 
@@ -33,23 +33,23 @@ def start_client():
 
     def on_move(x, y):
         message = f"move|{x},{y}|0,0\n"
-        client_socket.send(message.encode())
+        clientSocket.send(message.encode())
 
     def on_click(x, y, button, pressed):
         action = "press" if pressed else "release"
         button_str = 'left' if button == Button.left else 'right'
         message = f"{action}|{x},{y}|{button_str}\n"
-        client_socket.send(message.encode())
+        clientSocket.send(message.encode())
 
     def on_scroll(x, y, dx, dy):
         message = f"scroll|{x},{y}|{dx},{dy}\n"
-        client_socket.send(message.encode())
+        clientSocket.send(message.encode())
 
     # Start the mouse listener
     with MouseListener(on_move=on_move, on_click=on_click, on_scroll=on_scroll) as listener:
         listener.join()
 
-    client_socket.close()
+    clientSocket.close()
 
 if __name__ == "__main__":
-    start_client()
+    startClient()
