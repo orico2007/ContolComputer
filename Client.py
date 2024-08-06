@@ -76,7 +76,9 @@ def startClient():
                 data += packet
 
             if data:
+                # Load and resize the image to fit the screen
                 image = pygame.image.load(io.BytesIO(data))
+                image = pygame.transform.scale(image, (screen_width, screen_height))
                 screen.blit(image, (0, 0))
                 pygame.display.flip()
 
