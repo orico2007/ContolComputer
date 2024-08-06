@@ -5,7 +5,7 @@ from pynput.mouse import Listener as MouseListener, Button
 def start_client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    host = '127.0.0.1'
+    host = '192.168.1.217'
     port = 5050
 
     client_socket.connect((host, port))
