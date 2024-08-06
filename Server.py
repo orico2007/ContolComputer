@@ -17,59 +17,66 @@ def start_server():
     client_socket, addr = server_socket.accept()
     print("Got a connection from", addr)
 
+    buffer = ""
+
     def process_key(action, key):
         try:
             if action == "press":
                 keyboard.press(key)
             elif action == "release":
                 keyboard.release(key)
-        except ValueError as e:
+        except Exception as e:
             print(f"Error processing key: {key}, {e}")
 
     def process_mouse(action, x, y, button=None, dx=0, dy=0):
         try:
             if action == "move":
-                mouse.move(dx, dy)
+                mouse.position = (x, y)
             elif action == "press":
                 mouse.press(button)
             elif action == "release":
                 mouse.release(button)
             elif action == "scroll":
                 mouse.scroll(dx, dy)
-        except ValueError as e:
+        except Exception as e:
             print(f"Error processing mouse action: {action}, {e}")
 
     while True:
-        data = client_socket.recv(1024).decode().strip()
+        data = client_socket.recv(1024).decode()
         if not data:
             break
         
-        print(f"Received data: {data}")  # Debug print
+        buffer += data
         
-        parts = data.split('|')
-        if len(parts) < 3:
-            print(f"Invalid data format: {data}")
-            continue
+        while '\n' in buffer:
+            message, buffer = buffer.split('\n', 1)
+            message = message.strip()
+            print(f"Received data: {message}")  # Debug print
 
-        action = parts[0]
+            parts = message.split('|')
+            if len(parts) < 3:
+                print(f"Invalid data format: {message}")
+                continue
 
-        if action in ["press", "release"]:
-            key = parts[1]
-            process_key(action, key)
-        elif action in ["move", "click", "scroll"]:
-            try:
-                x, y = map(int, parts[1].split(','))
-                if action == "move":
-                    dx, dy = map(int, parts[2].split(','))
-                    process_mouse(action, x, y, dx=dx, dy=dy)
-                elif action == "click":
-                    button = Button.left if parts[2] == 'left' else Button.right
-                    process_mouse(action, x, y, button=button)
-                elif action == "scroll":
-                    dx, dy = map(int, parts[2].split(','))
-                    process_mouse(action, x, y, dx=dx, dy=dy)
-            except ValueError as e:
-                print(f"Error parsing mouse data: {e}")
+            action = parts[0]
+
+            if action in ["press", "release"]:
+                key = parts[1]
+                process_key(action, key)
+            elif action in ["move", "click", "scroll"]:
+                try:
+                    x, y = map(int, parts[1].split(','))
+                    if action == "move":
+                        dx, dy = map(int, parts[2].split(','))
+                        process_mouse(action, x, y, dx=dx, dy=dy)
+                    elif action == "click":
+                        button = Button.left if parts[2] == 'left' else Button.right
+                        process_mouse(action, x, y, button=button)
+                    elif action == "scroll":
+                        dx, dy = map(int, parts[2].split(','))
+                        process_mouse(action, x, y, dx=dx, dy=dy)
+                except ValueError as e:
+                    print(f"Error parsing mouse data: {e}")
 
     client_socket.close()
 
